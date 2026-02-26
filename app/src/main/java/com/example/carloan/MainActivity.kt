@@ -1,12 +1,12 @@
 package com.example.carloan
 
-import android.R
 import android.os.Bundle
 import android.widget.RadioGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,10 +69,14 @@ fun CarLoanScreen(modifier: Modifier = Modifier) {
     var numMonths by remember {mutableStateOf("36 months")}
     var monthlyPayment: Double by remember {mutableDoubleStateOf(0.0)}
     Column(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceEvenly
     ) {
         Image(
-            painter = painterResource(R.drawable.car)
+            painter = painterResource(R.drawable.blue_car),
+            contentDescription = "Blue car",
+            modifier = Modifier.padding(horizontal = 20.dp)
+
         )
         Text(
             text = "Car Loan Calculator",
@@ -133,7 +137,7 @@ fun TextFieldRow(prompt: String, size: Int, moneyValue: String, onChange: (Strin
             onValueChange = onChange,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
-            modifier = Modifier.padding(5.dp)
+            modifier = Modifier.padding(start = 5.dp, end = 20.dp)
         )
     }
 }
