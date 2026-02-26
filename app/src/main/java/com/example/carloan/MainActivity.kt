@@ -1,10 +1,12 @@
 package com.example.carloan
 
+import android.R
 import android.os.Bundle
 import android.widget.RadioGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -63,11 +66,14 @@ fun CarLoanScreen(modifier: Modifier = Modifier) {
     var purchasePrice by remember { mutableStateOf("") }
     var downPayment by remember {mutableStateOf("")}
     var interestRate by remember { mutableFloatStateOf(0f) }
-    var loanSize by remember { mutableIntStateOf(0) }
-    var monthlyPayment by remember { mutableDoubleStateOf(0.0) }
+    var numMonths by remember {mutableStateOf("36 months")}
+    var monthlyPayment: Double by remember {mutableDoubleStateOf(0.0)}
     Column(
         modifier = modifier.fillMaxSize()
     ) {
+        Image(
+            painter = painterResource(R.drawable.car)
+        )
         Text(
             text = "Car Loan Calculator",
             fontSize = 40.sp,
@@ -77,27 +83,38 @@ fun CarLoanScreen(modifier: Modifier = Modifier) {
         )
         TextFieldRow("Purchase Price:", promptSize, purchasePrice, {purchasePrice=it})
         TextFieldRow("Down Payment Amount: ", promptSize, downPayment, {downPayment=it})
-        Row(
-            modifier = Modifier
-        ){
-            Text(
-                text = "Annual Interest Rate: " + String.format("%.1f", interestRate) + "%",
-                fontSize = promptSize.sp,
-                modifier = Modifier.padding(10.dp)
-            )
-            Slider(
-                value = interestRate,
-                onValueChange = {interestRate = it},
-                valueRange = 0f..100f,
-                modifier = Modifier.padding(horizontal = 10.dp)
-            )
-        }
-        RadioGroup(loanLengthOptions, promptSize)
+
+        Text(
+            text = "Annual Interest Rate: " + String.format("%.2f", interestRate) + "%",
+            fontSize = promptSize.sp,
+            modifier = Modifier.padding(10.dp)
+        )
+        Slider(
+            value = interestRate,
+            onValueChange = {interestRate = it},
+            valueRange = 0f..20f,
+            modifier = Modifier.padding(horizontal = 30.dp)
+        )
+
+        RadioGroup(loanLengthOptions, promptSize, numMonths, {numMonths = it})
         Button(
-            onClick = {}
+            onClick = {monthlyPayment = calculateMonthlyPayment(
+                purchasePrice.toFloat(),
+                downPayment.toFloat(),
+                interestRate,
+                numMonths
+                )
+            },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp)
         ){
             Text("Calculate Monthly Payment")
         }
+        Text(
+            text = String.format("Monthly Payment: $%.2f", monthlyPayment),
+            fontSize = promptSize.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
@@ -124,9 +141,10 @@ fun TextFieldRow(prompt: String, size: Int, moneyValue: String, onChange: (Strin
 @Composable
 fun RadioGroup(
     radioOptions: List<String>,
-    size: Int
+    size: Int,
+    selectedOption: String,
+    onSelect: (String) -> Unit
 ){
-    var selectedOption by remember {mutableStateOf("5 years")}
     Column(
 
     ) {
@@ -140,13 +158,13 @@ fun RadioGroup(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.selectable(
                     selected = selectedOption == option,
-                    onClick = {selectedOption = option},
+                    onClick = {onSelect(option)},
                     role = Role.RadioButton
                 )
             ){
                 RadioButton(
                     selected = selectedOption == option,
-                    onClick = { selectedOption = option}
+                    onClick = { onSelect(option) }
                 )
                 Text(
                     text = option,
@@ -162,9 +180,16 @@ fun calculateMonthlyPayment(
     purchasePrice: Float,
     downPayment: Float,
     apr: Float,
-    loanLength: Int
+    numMonths: String
 ): Double{
-    val mr = apr/12
+    val mr = apr/1200
     val loanSize = purchasePrice - downPayment
+    val loanLength = when (numMonths) {
+        "36 months" -> 36
+        "48 months" -> 48
+        "60 months" -> 60
+        "72 months" -> 72
+        else -> 84
+    }
     return mr * loanSize / (1-Math.pow((1+mr).toDouble(), ((loanLength * -1).toDouble())))
 }
