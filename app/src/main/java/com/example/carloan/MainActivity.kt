@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.carloan.ui.theme.CarLoanTheme
 import java.text.Format
 
@@ -67,23 +68,19 @@ class MainActivity : ComponentActivity() {
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun CarLoanScreen(modifier: Modifier = Modifier) {
+fun CarLoanScreen(modifier: Modifier = Modifier, carLoanViewModel: CarLoanViewModel = viewModel()) {
     if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT) {
-        CarLoanPortrait(modifier)
+        CarLoanPortrait(modifier, carLoanViewModel)
     } else {
-        CarLoanLandscape(modifier)
+        CarLoanLandscape(modifier, carLoanViewModel)
     }
 }
 
 @Composable
-fun CarLoanPortrait(modifier: Modifier = Modifier) {
+fun CarLoanPortrait(modifier: Modifier = Modifier, carLoanViewModel: CarLoanViewModel) {
     val promptSize = 20
     val loanLengthOptions = listOf("36 months", "48 months", "60 months", "72 months", "84 months")
-    var purchasePrice by remember { mutableStateOf("") }
-    var downPayment by remember {mutableStateOf("")}
-    var interestRate by remember { mutableFloatStateOf(0f) }
-    var numMonths by remember {mutableStateOf("36 months")}
-    var monthlyPayment: Double by remember {mutableDoubleStateOf(0.0)}
+
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceEvenly
@@ -101,28 +98,28 @@ fun CarLoanPortrait(modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
-        TextFieldRow("Purchase Price:", promptSize, purchasePrice, {purchasePrice=it})
-        TextFieldRow("Down Payment Amount: ", promptSize, downPayment, {downPayment=it})
+        TextFieldRow("Purchase Price:", promptSize, carLoanViewModel.purchasePrice, {carLoanViewModel.purchasePrice=it})
+        TextFieldRow("Down Payment Amount: ", promptSize, carLoanViewModel.downPayment, {carLoanViewModel.downPayment=it})
 
         Text(
-            text = "Annual Interest Rate: " + String.format("%.2f", interestRate) + "%",
+            text = "Annual Interest Rate: " + String.format("%.2f", carLoanViewModel.interestRate) + "%",
             fontSize = promptSize.sp,
             modifier = Modifier.padding(10.dp)
         )
         Slider(
-            value = interestRate,
-            onValueChange = {interestRate = it},
+            value = carLoanViewModel.interestRate,
+            onValueChange = {carLoanViewModel.interestRate = it},
             valueRange = 0f..20f,
             modifier = Modifier.padding(horizontal = 30.dp)
         )
 
-        RadioGroup(loanLengthOptions, promptSize, numMonths, {numMonths = it})
+        RadioGroup(loanLengthOptions, promptSize, carLoanViewModel.numMonths, {carLoanViewModel.numMonths = it})
         Button(
-            onClick = {monthlyPayment = calculateMonthlyPayment(
-                purchasePrice.toFloat(),
-                downPayment.toFloat(),
-                interestRate,
-                numMonths
+            onClick = {carLoanViewModel.monthlyPayment = calculateMonthlyPayment(
+                carLoanViewModel.purchasePrice.toFloat(),
+                carLoanViewModel.downPayment.toFloat(),
+                carLoanViewModel.interestRate,
+                carLoanViewModel.numMonths
             )
             },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp)
@@ -130,7 +127,7 @@ fun CarLoanPortrait(modifier: Modifier = Modifier) {
             Text("Calculate Monthly Payment")
         }
         Text(
-            text = String.format("Monthly Payment: $%.2f", monthlyPayment),
+            text = String.format("Monthly Payment: $%.2f", carLoanViewModel.monthlyPayment),
             fontSize = promptSize.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
@@ -139,16 +136,12 @@ fun CarLoanPortrait(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CarLoanLandscape(modifier: Modifier = Modifier) {
+fun CarLoanLandscape(modifier: Modifier = Modifier, carLoanViewModel: CarLoanViewModel) {
     val promptSize = 30
     val loanLengthOptions = listOf("36 months", "48 months", "60 months", "72 months", "84 months")
-    var purchasePrice by remember { mutableStateOf("") }
-    var downPayment by remember {mutableStateOf("")}
-    var interestRate by remember { mutableFloatStateOf(0f) }
-    var numMonths by remember {mutableStateOf("36 months")}
-    var monthlyPayment: Double by remember {mutableDoubleStateOf(0.0)}
+
     Row(
-        //modifier = modifier.fillMaxWidth(),
+        //modifier = modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.Top
 
@@ -165,26 +158,26 @@ fun CarLoanLandscape(modifier: Modifier = Modifier) {
                 //textAlign = TextAlign.Center,
                 //modifier = Modifier.fillMaxWidth()
             )
-            TextFieldRow("Purchase Price:", promptSize, purchasePrice, {purchasePrice=it})
-            TextFieldRow("Down Payment Amount: ", promptSize, downPayment, {downPayment=it})
+            TextFieldRow("Purchase Price:", promptSize, carLoanViewModel.purchasePrice, {carLoanViewModel.purchasePrice=it})
+            TextFieldRow("Down Payment Amount: ", promptSize, carLoanViewModel.downPayment, {carLoanViewModel.downPayment=it})
 
             Text(
-                text = "Annual Interest Rate: " + String.format("%.2f", interestRate) + "%",
+                text = "Annual Interest Rate: " + String.format("%.2f", carLoanViewModel.interestRate) + "%",
                 fontSize = promptSize.sp,
                 modifier = Modifier.padding(10.dp)
             )
             Slider(
-                value = interestRate,
-                onValueChange = {interestRate = it},
+                value = carLoanViewModel.interestRate,
+                onValueChange = {carLoanViewModel.interestRate = it},
                 valueRange = 0f..20f,
                 modifier = Modifier.padding(horizontal = 30.dp).size(height = 40.dp, width = 350.dp)
             )
             Button(
-                onClick = {monthlyPayment = calculateMonthlyPayment(
-                    purchasePrice.toFloat(),
-                    downPayment.toFloat(),
-                    interestRate,
-                    numMonths
+                onClick = {carLoanViewModel.monthlyPayment = calculateMonthlyPayment(
+                    carLoanViewModel.purchasePrice.toFloat(),
+                    carLoanViewModel.downPayment.toFloat(),
+                    carLoanViewModel.interestRate,
+                    carLoanViewModel.numMonths
                 )
                 },
                 modifier = Modifier.padding(horizontal = 30.dp)
@@ -196,9 +189,9 @@ fun CarLoanLandscape(modifier: Modifier = Modifier) {
         Column(
 
         ) {
-            RadioGroup(loanLengthOptions, promptSize, numMonths, {numMonths = it})
+            RadioGroup(loanLengthOptions, promptSize, carLoanViewModel.numMonths, {carLoanViewModel.numMonths = it})
             Text(
-                text = String.format("Monthly Payment: $%.2f", monthlyPayment),
+                text = String.format("Monthly Payment: $%.2f", carLoanViewModel.monthlyPayment),
                 fontSize = promptSize.sp,
                 textAlign = TextAlign.Center,
                 //modifier = Modifier.fillMaxWidth()
