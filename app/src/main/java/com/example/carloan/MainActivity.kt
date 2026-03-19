@@ -58,7 +58,8 @@ class MainActivity : ComponentActivity() {
             CarLoanTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     CarLoanScreen(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+
                     )
                 }
             }
@@ -112,7 +113,11 @@ fun CarLoanPortrait(modifier: Modifier = Modifier, carLoanViewModel: CarLoanView
             valueRange = 0f..20f,
             modifier = Modifier.padding(horizontal = 30.dp)
         )
-
+        Text(
+            text = "Length of Loan:",
+            fontSize = promptSize.sp,
+            modifier = Modifier.padding(5.dp)
+        )
         RadioGroup(loanLengthOptions, promptSize, carLoanViewModel.numMonths, {carLoanViewModel.numMonths = it})
         Button(
             onClick = {carLoanViewModel.monthlyPayment = calculateMonthlyPayment(
@@ -141,13 +146,13 @@ fun CarLoanLandscape(modifier: Modifier = Modifier, carLoanViewModel: CarLoanVie
     val loanLengthOptions = listOf("36 months", "48 months", "60 months", "72 months", "84 months")
 
     Row(
-        //modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.Top
 
     ) {
         Column(
-            modifier = modifier.fillMaxHeight(),
+            modifier = Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
 
@@ -155,8 +160,8 @@ fun CarLoanLandscape(modifier: Modifier = Modifier, carLoanViewModel: CarLoanVie
                 text = "Car Loan Calculator",
                 fontSize = 40.sp,
                 fontWeight = FontWeight.Bold,
-                //textAlign = TextAlign.Center,
-                //modifier = Modifier.fillMaxWidth()
+                textAlign = TextAlign.Left,
+                modifier = Modifier.padding(start = 10.dp)
             )
             TextFieldRow("Purchase Price:", promptSize, carLoanViewModel.purchasePrice, {carLoanViewModel.purchasePrice=it})
             TextFieldRow("Down Payment Amount: ", promptSize, carLoanViewModel.downPayment, {carLoanViewModel.downPayment=it})
@@ -187,14 +192,20 @@ fun CarLoanLandscape(modifier: Modifier = Modifier, carLoanViewModel: CarLoanVie
 
         }
         Column(
-
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Top
         ) {
+            Text(
+                text = "Length of Loan:",
+                fontSize = promptSize.sp,
+                modifier = Modifier.padding(5.dp)
+            )
             RadioGroup(loanLengthOptions, promptSize, carLoanViewModel.numMonths, {carLoanViewModel.numMonths = it})
             Text(
                 text = String.format("Monthly Payment: $%.2f", carLoanViewModel.monthlyPayment),
                 fontSize = promptSize.sp,
                 textAlign = TextAlign.Center,
-                //modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
@@ -228,13 +239,8 @@ fun RadioGroup(
     onSelect: (String) -> Unit
 ){
     Column(
-        modifier = Modifier.padding(start = 30.dp, end = 30.dp, top = 30.dp)
+        modifier = Modifier.padding(start = 30.dp, end = 30.dp)
     ) {
-        Text(
-            text = "Length of Loan:",
-            fontSize = size.sp,
-            modifier = Modifier.padding(5.dp)
-        )
         radioOptions.forEach { option ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
